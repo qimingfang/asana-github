@@ -37,7 +37,7 @@ module.exports = function () {
                   const taskId = asanaSegments[3]
 
                   client.stories.createOnTask(taskId, {
-                    text: '(Auto Generated) PR:\n' + pr.html_url
+                    text: '(Auto Generated) Merged PR:\n' + pr.html_url
                   }).then(res => {
                     console.log(res)
                   }).catch(err => {
