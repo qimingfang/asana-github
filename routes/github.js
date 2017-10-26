@@ -22,6 +22,8 @@ module.exports = function () {
           case 'closed':
             const pr = req.body.pull_request
 
+            console.log('Processing', pr.html_url)
+
             if (pr && pr.body && pr.merged) {
               const splitted = pr.body.split('\r\n')
               const asanaLines = splitted
