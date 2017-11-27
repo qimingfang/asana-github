@@ -1,3 +1,8 @@
+<a name="1.1.2"></a>
+## [1.1.2](https://github.com/qimingfang/asana-github/compare/v1.1.1...v1.1.2) (2017-11-27)
+
+
+
 <a name="1.1.1"></a>
 ## 1.1.1 (2017-11-27)
 
