@@ -8,8 +8,11 @@ const version = require('../../package.json').version
 exports.setUp = function () {
   // set up sentry for logging, if sentry url is provided.
   if (process.env.SENTRY_URL) {
-    Raven.config(process.env.SENTRY_URL)
-      .install()
+    Raven.config(process.env.SENTRY_URL, {
+      release: version,
+      allowSecretKey: true
+    })
+    .install()
   }
 }
 
