@@ -17,6 +17,8 @@ app.get('/status', m.any(), (req, res) => {
   const status = {
     version: require('./package.json').version
   }
+
+  logger.info('Getting status', status)
   return res.json(status)
 })
 
