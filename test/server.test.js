@@ -55,6 +55,10 @@ describe('API', function () {
     sinon.stub(asana.stories, 'createOnTask').callsFake((a, b) => {
       return Promise.resolve({})
     })
+
+    sinon.stub(asana.tasks, 'update').callsFake((a, b) => {
+      return Promise.resolve({})
+    })
   })
 
   afterEach(function () {
@@ -63,6 +67,7 @@ describe('API', function () {
     logger.error.restore()
 
     asana.stories.createOnTask.restore()
+    asana.tasks.update.restore()
   })
 
   describe('/pr', function () {
@@ -70,11 +75,26 @@ describe('API', function () {
       const res = yield _request({
         method: 'post',
         url: '/pr',
-        data: fixtures.prclose
+        data: fixtures.closePr
       })
 
       expect(res.status).to.equal(200)
       expect(asana.stories.createOnTask).to.have.callCount(1)
+      expect(logger.capture).to.have.been.called
+      expect(logger.info).to.have.been.called
+      expect(logger.error).not.to.have.been.called
+    })
+
+    it('should close the asana task too if prepend with word close', function * () {
+      const res = yield _request({
+        method: 'post',
+        url: '/pr',
+        data: fixtures.closePrAndAsana
+      })
+
+      expect(res.status).to.equal(200)
+      expect(asana.stories.createOnTask).to.have.callCount(1)
+      expect(asana.tasks.update).to.have.callCount(1)
       expect(logger.capture).to.have.been.called
       expect(logger.info).to.have.been.called
       expect(logger.error).not.to.have.been.called

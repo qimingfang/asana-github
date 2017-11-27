@@ -2,8 +2,11 @@ const express = require('express')
 const multer = require('multer')
 const url = require('url')
 const _ = require('lodash')
+const stem = require('stem-porter')
 const asana = require('./util/asana')
 const logger = require('./util/logger')
+
+const ASANA_LINK_PREFIX = 'https://app.asana'
 
 module.exports = function () {
   const router = express.Router()
@@ -74,29 +77,58 @@ function parseAndCommentOnAsana (message, asanaMessage) {
   // parse the lines that contain Asana info
   const splitted = message.split('\n')
   const asanaLines = splitted
-    .filter(line => line.startsWith('https://app.asana'))
+    .filter(line => line.includes(ASANA_LINK_PREFIX))
 
   // capture this, in case we need to look at it later
   logger.capture('Asana tickets to process', asanaLines)
 
+  // each asana line is a sentence that contains the asana link
+  // example: 'I am closing <asana link>'
   asanaLines.forEach(asanaLine => {
-    const asanaPath = url.parse(asanaLine).path
+    const wordsOnLine = asanaLine.split(' ')
 
-    // example: [ '', '0', '248400113261909', '463141492036657' ]
-    const asanaSegments = asanaPath.split('/')
+    wordsOnLine.forEach((word, idx) => {
+      // the word we're looking at is an asana link
+      if (word.startsWith(ASANA_LINK_PREFIX)) {
+        // parse the link and add the comment
+        const asanaPath = url.parse(word).path
 
-    if (asanaSegments.length === 4) {
-      const taskId = asanaSegments[3]
+        // example: [ '', '0', '248400113261909', '463141492036657' ]
+        const asanaSegments = asanaPath.split('/')
 
-      asana.stories.createOnTask(taskId, {
-        text: asanaMessage
-      }).then(res => {
-        logger.info('Asana comment posted', Object.assign({}, res, {
-          asanaMessage
-        }))
-      }).catch(err => {
-        logger.error(err)
-      })
-    }
+        if (asanaSegments.length === 4) {
+          const taskId = asanaSegments[3]
+
+          asana.stories.createOnTask(taskId, {
+            text: asanaMessage
+          }).then(res => {
+            logger.info('Asana comment posted', Object.assign({}, res, {
+              asanaMessage
+            }))
+          }).catch(err => {
+            logger.error(err)
+          })
+
+          // if there is a word before this, and
+          // if the word before this has a porter stem of `close` or `complet`
+          // then complete the asana task too.
+          if (idx > 0) {
+            const wordBefore = wordsOnLine[idx - 1]
+              .replace(/[^A-Za-z]/gi, '')
+              .toLowerCase()
+
+            if (stem(wordBefore) === 'close' || stem(wordBefore) === 'complet') {
+              asana.tasks.update(taskId, {
+                completed: true
+              }).then(res => {
+                logger.info('Asana task completed', res)
+              }).catch(err => {
+                logger.error(err)
+              })
+            }
+          }
+        }
+      }
+    })
   })
 }
