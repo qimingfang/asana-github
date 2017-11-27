@@ -10,10 +10,6 @@ exports.setUp = function () {
   if (process.env.SENTRY_URL) {
     Raven.config(process.env.SENTRY_URL)
       .install()
-
-    Raven.setTagsContext({
-      version
-    })
   }
 }
 
