@@ -1,10 +1,11 @@
 {
   "name": "asana-github",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "release": "node ./bin/release.js",
     "test": "mocha -r ./configureTest.js ./test/**/*.test.js"
   },
   "author": "",
@@ -37,8 +38,10 @@
     "co": "^4.6.0",
     "co-mocha": "^1.2.1",
     "mocha": "^4.0.1",
+    "semver": "^5.4.1",
     "sinon": "^4.1.2",
     "sinon-chai": "^2.14.0",
-    "standard": "7.1.2"
+    "standard": "7.1.2",
+    "yargs": "^10.0.3"
   }
 }
