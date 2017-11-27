@@ -19,7 +19,7 @@ module.exports = function () {
         const commits = req.body.commits || []
 
         commits.forEach(commit => {
-          const who = _.get(commit, 'sender.login', '<unknown>')
+          const who = _.get(commit, 'author.name', '<unknown>')
 
           parseAndCommentOnAsana(
             commit.message,
